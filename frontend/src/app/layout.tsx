@@ -5,8 +5,8 @@ import { AuthProvider } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 
 export const metadata: Metadata = {
-  title: 'Cloud Library | Modern Polyglot Microservices LMS',
-  description: 'Browse book catalog, manage borrowings, and administer library members with independent microservices.',
+  title: 'Cloud Library | Modern Digital Library System',
+  description: 'Browse the digital book catalog, borrow titles online, and manage loans seamlessly.',
 };
 
 export default function RootLayout({

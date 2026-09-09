@@ -109,7 +109,7 @@ export default function PatronDashboardPage() {
               </span>
             </div>
             <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-              {user?.email} • Managed by Circulation Service (Node/TS)
+              {user?.email} • Verified Member
             </div>
           </div>
         </div>

@@ -137,7 +137,7 @@ export default function HomePage() {
             marginBottom: 16
           }}>
             <Sparkles size={16} color="#78350F" />
-            Polyglot Microservices LMS Demo
+            Public Digital Library
           </div>
 
           <h1 style={{
@@ -157,7 +157,7 @@ export default function HomePage() {
             fontWeight: 500,
             marginBottom: 24
           }}>
-            Browse books powered by a <strong>Go Catalog Microservice</strong>, authenticate via <strong>Python FastAPI</strong>, and track member circulation records through <strong>Node.js & TypeScript</strong>!
+            Welcome to the community library catalog. Explore thousands of titles across literature, science, and history, reserve copies with instant digital checkout, and manage your personal loans with ease.
           </p>
 
           {/* Search Form */}
@@ -393,7 +393,7 @@ export default function HomePage() {
               />
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Confirm Book Loan</h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Library Circulation Service</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Circulation & Lending Desk</p>
               </div>
             </div>
 

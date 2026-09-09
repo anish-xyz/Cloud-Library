@@ -77,7 +77,7 @@ export default function Navbar() {
               }}>v1.0</span>
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-              Polyglot Microservices Catalog
+              Online Catalog & Circulation
             </div>
           </div>
         </Link>

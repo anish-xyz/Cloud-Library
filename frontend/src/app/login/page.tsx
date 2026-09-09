@@ -78,18 +78,7 @@ function LoginFormContent() {
     }
   };
 
-  // Quick autofill buttons for easy evaluation
-  const fillDemoPatron = () => {
-    setEmail('patron@library.com');
-    setPassword('patron123');
-    setErrorMessage(null);
-  };
 
-  const fillDemoStaff = () => {
-    setEmail('staff@library.com');
-    setPassword('staff123');
-    setErrorMessage(null);
-  };
 
   return (
     <div className="container" style={{ maxWidth: 540, paddingTop: 40 }}>
@@ -137,7 +126,7 @@ function LoginFormContent() {
           </h1>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             {activeTab === 'staff_login'
-              ? 'Secure staff authentication via FastAPI Service'
+              ? 'Staff administration & catalog management portal'
               : 'Sign in to borrow books & view reading logs'}
           </p>
         </div>
@@ -303,25 +292,6 @@ function LoginFormContent() {
             >
               {isLoading ? 'Signing In...' : 'Sign In to Account'}
             </button>
-
-            {/* Quick autofill helper */}
-            <div style={{ textAlign: 'center', marginTop: 8 }}>
-              <button
-                type="button"
-                onClick={fillDemoPatron}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '0.8rem',
-                  color: 'var(--primary-blue)',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  textDecoration: 'underline'
-                }}
-              >
-                Autofill Demo Patron (patron@library.com)
-              </button>
-            </div>
           </form>
         )}
 
@@ -452,25 +422,6 @@ function LoginFormContent() {
             >
               {isLoading ? 'Authenticating Staff...' : 'Sign In as Staff'}
             </button>
-
-            {/* Quick autofill helper */}
-            <div style={{ textAlign: 'center', marginTop: 8 }}>
-              <button
-                type="button"
-                onClick={fillDemoStaff}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '0.8rem',
-                  color: '#B45309',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  textDecoration: 'underline'
-                }}
-              >
-                Autofill Demo Staff (staff@library.com)
-              </button>
-            </div>
           </form>
         )}
       </div>

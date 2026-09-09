@@ -11,6 +11,12 @@
 *.env
 !*.env.example
 
+# --- Credentials & Secrets ---
+*credentials*
+*CREDENTIALS*
+staff-credentials*
+STAFF_CREDENTIALS*
+
 # --- Deployment & Cloud VM Guides ---
 GCP_DEPLOYMENT_GUIDE.md
 *DEPLOYMENT*.md
