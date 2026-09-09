@@ -1,34 +1,19 @@
-# Frontend Dockerfile (Next.js)
-FROM node:20-alpine AS deps
+# Frontend Dockerfile (Next.js Dev Server - Fast startup without heavy compilation)
+FROM node:20-alpine
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
-
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
 
 # Install curl for healthcheck
 RUN apk --no-cache add curl
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+COPY package*.json ./
+RUN npm install
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY . .
 
-USER nextjs
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["npm", "run", "dev"]
