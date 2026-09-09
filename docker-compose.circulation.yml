@@ -1,0 +1,43 @@
+services:
+  circulation-db:
+    image: mysql:8.0
+    container_name: library-circulation-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${CIRCULATION_DB_ROOT_PASSWORD:-circulation_root_pass}
+      MYSQL_DATABASE: ${CIRCULATION_DB_NAME:-circulation_db}
+      MYSQL_USER: ${CIRCULATION_DB_USER:-circulation_user}
+      MYSQL_PASSWORD: ${CIRCULATION_DB_PASSWORD:-circulation_pass}
+    volumes:
+      - circulation_mydata:/var/lib/mysql
+      - ./services/circulation/db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${CIRCULATION_DB_USER:-circulation_user}", "-p${CIRCULATION_DB_PASSWORD:-circulation_pass}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  circulation-service:
+    build:
+      context: ./services/circulation
+      dockerfile: Dockerfile
+    container_name: library-circulation-service
+    restart: unless-stopped
+    environment:
+      PORT: 8082
+      DB_HOST: circulation-db
+      DB_PORT: 3306
+      DB_USER: ${CIRCULATION_DB_USER:-circulation_user}
+      DB_PASSWORD: ${CIRCULATION_DB_PASSWORD:-circulation_pass}
+      DB_NAME: ${CIRCULATION_DB_NAME:-circulation_db}
+      JWT_SECRET: ${JWT_SECRET:-super-secret-library-jwt-key-change-in-prod}
+      CATALOG_SERVICE_URL: http://${CATALOG_HOST:-127.0.0.1}:${CATALOG_PORT:-8081}
+    ports:
+      - "8082:8082"
+    depends_on:
+      circulation-db:
+        condition: service_healthy
+
+volumes:
+  circulation_mydata:
+    name: library_circulation_data

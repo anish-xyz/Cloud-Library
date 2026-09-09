@@ -1,0 +1,41 @@
+services:
+  catalog-db:
+    image: mysql:8.0
+    container_name: library-catalog-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${CATALOG_DB_ROOT_PASSWORD:-catalog_root_pass}
+      MYSQL_DATABASE: ${CATALOG_DB_NAME:-catalog_db}
+      MYSQL_USER: ${CATALOG_DB_USER:-catalog_user}
+      MYSQL_PASSWORD: ${CATALOG_DB_PASSWORD:-catalog_pass}
+    volumes:
+      - catalog_mydata:/var/lib/mysql
+      - ./services/catalog/db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${CATALOG_DB_USER:-catalog_user}", "-p${CATALOG_DB_PASSWORD:-catalog_pass}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  catalog-service:
+    build:
+      context: ./services/catalog
+      dockerfile: Dockerfile
+    container_name: library-catalog-service
+    restart: unless-stopped
+    environment:
+      PORT: 8081
+      DB_HOST: catalog-db
+      DB_PORT: 3306
+      DB_USER: ${CATALOG_DB_USER:-catalog_user}
+      DB_PASSWORD: ${CATALOG_DB_PASSWORD:-catalog_pass}
+      DB_NAME: ${CATALOG_DB_NAME:-catalog_db}
+    ports:
+      - "8081:8081"
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+
+volumes:
+  catalog_mydata:
+    name: library_catalog_data

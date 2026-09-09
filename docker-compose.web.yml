@@ -1,0 +1,32 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: library-frontend
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ""
+    ports:
+      - "3000:3000"
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: library-gateway
+    restart: unless-stopped
+    environment:
+      CATALOG_HOST: ${CATALOG_HOST:-127.0.0.1}
+      CATALOG_PORT: ${CATALOG_PORT:-8081}
+      AUTH_HOST: ${AUTH_HOST:-127.0.0.1}
+      AUTH_PORT: ${AUTH_PORT:-8000}
+      CIRCULATION_HOST: ${CIRCULATION_HOST:-127.0.0.1}
+      CIRCULATION_PORT: ${CIRCULATION_PORT:-8082}
+      FRONTEND_HOST: frontend
+      FRONTEND_PORT: 3000
+    ports:
+      - "${GATEWAY_PORT:-80}:80"
+    depends_on:
+      - frontend
