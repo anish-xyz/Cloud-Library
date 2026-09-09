@@ -1,0 +1,57 @@
+server {
+    listen 80;
+    server_name localhost;
+
+    # Gzip Compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Gateway Health Check
+    location /gateway-health {
+        access_log off;
+        default_type application/json;
+        return 200 '{"status":"healthy","gateway":"Nginx API Gateway"}';
+    }
+
+    # Catalog Service (Go)
+    location /api/catalog/ {
+        proxy_pass http://${CATALOG_HOST}:${CATALOG_PORT}/api/catalog/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Auth Service (FastAPI / Python)
+    location /api/auth/ {
+        proxy_pass http://${AUTH_HOST}:${AUTH_PORT}/api/auth/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Circulation & Member Management Service (Node.js / TypeScript)
+    location /api/circulation/ {
+        proxy_pass http://${CIRCULATION_HOST}:${CIRCULATION_PORT}/api/circulation/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Next.js Frontend
+    location / {
+        proxy_pass http://${FRONTEND_HOST}:${FRONTEND_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

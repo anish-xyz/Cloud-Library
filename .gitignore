@@ -1,0 +1,87 @@
+# =========================================================
+# Cloud Library .gitignore
+# =========================================================
+
+# --- Environment & Secret Files ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+!*.env.example
+
+# --- Deployment & Cloud VM Guides ---
+GCP_DEPLOYMENT_GUIDE.md
+*DEPLOYMENT*.md
+*deployment*.md
+
+# --- Node / Frontend & TypeScript Service Dependencies ---
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# --- Next.js Build Artifacts ---
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Python / FastAPI Artifacts ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# --- Go Build Artifacts ---
+services/catalog/catalog-service
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# --- Databases & Local Volume Dumps ---
+*.sqlite
+*.sqlite3
+*.db
+*.log
+local_data/
+
+# --- OS & Editor Cache ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

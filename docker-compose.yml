@@ -1,0 +1,197 @@
+services:
+  # ==========================================
+  # 1. CATALOG SERVICE & DATABASE (Go + MySQL)
+  # ==========================================
+  catalog-db:
+    image: mysql:8.0
+    container_name: library-catalog-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: catalog_root_pass
+      MYSQL_DATABASE: catalog_db
+      MYSQL_USER: catalog_user
+      MYSQL_PASSWORD: catalog_pass
+    volumes:
+      - catalog_mydata:/var/lib/mysql
+      - ./services/catalog/db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - library-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "catalog_user", "-pcatalog_pass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  catalog-service:
+    build:
+      context: ./services/catalog
+      dockerfile: Dockerfile
+    container_name: library-catalog-service
+    restart: unless-stopped
+    environment:
+      PORT: 8081
+      DB_HOST: catalog-db
+      DB_PORT: 3306
+      DB_USER: catalog_user
+      DB_PASSWORD: catalog_pass
+      DB_NAME: catalog_db
+    ports:
+      - "8081:8081"
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+    networks:
+      - library-network
+
+  # ===============================================
+  # 2. AUTH SERVICE & DATABASE (FastAPI + Postgres)
+  # ===============================================
+  auth-db:
+    image: postgres:16-alpine
+    container_name: library-auth-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+      - ./services/auth/db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - library-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_user -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth-service:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    container_name: library-auth-service
+    restart: unless-stopped
+    environment:
+      PORT: 8000
+      DB_HOST: auth-db
+      DB_PORT: 5432
+      DB_USER: auth_user
+      DB_PASSWORD: auth_pass
+      DB_NAME: auth_db
+      JWT_SECRET: super-secret-library-jwt-key-change-in-prod
+    ports:
+      - "8000:8000"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - library-network
+
+  # ========================================================
+  # 3. CIRCULATION SERVICE & DATABASE (Node.js/TS + MySQL)
+  # ========================================================
+  circulation-db:
+    image: mysql:8.0
+    container_name: library-circulation-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: circulation_root_pass
+      MYSQL_DATABASE: circulation_db
+      MYSQL_USER: circulation_user
+      MYSQL_PASSWORD: circulation_pass
+    volumes:
+      - circulation_mydata:/var/lib/mysql
+      - ./services/circulation/db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - library-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "circulation_user", "-pcirculation_pass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  circulation-service:
+    build:
+      context: ./services/circulation
+      dockerfile: Dockerfile
+    container_name: library-circulation-service
+    restart: unless-stopped
+    environment:
+      PORT: 8082
+      DB_HOST: circulation-db
+      DB_PORT: 3306
+      DB_USER: circulation_user
+      DB_PASSWORD: circulation_pass
+      DB_NAME: circulation_db
+      JWT_SECRET: super-secret-library-jwt-key-change-in-prod
+      CATALOG_SERVICE_URL: http://catalog-service:8081
+    ports:
+      - "8082:8082"
+    depends_on:
+      circulation-db:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+    networks:
+      - library-network
+
+  # ==========================================
+  # 4. FRONTEND SERVICE (Next.js)
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: library-frontend
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ""
+    ports:
+      - "3000:3000"
+    networks:
+      - library-network
+
+  # ==========================================
+  # 5. API GATEWAY (Nginx Ingress Reverse Proxy)
+  # ==========================================
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: library-gateway
+    restart: unless-stopped
+    environment:
+      CATALOG_HOST: catalog-service
+      CATALOG_PORT: 8081
+      AUTH_HOST: auth-service
+      AUTH_PORT: 8000
+      CIRCULATION_HOST: circulation-service
+      CIRCULATION_PORT: 8082
+      FRONTEND_HOST: frontend
+      FRONTEND_PORT: 3000
+    ports:
+      - "8080:80"
+    depends_on:
+      - frontend
+      - catalog-service
+      - auth-service
+      - circulation-service
+    networks:
+      - library-network
+
+# ==========================================
+# SHARED NETWORK & DEDICATED VOLUMES
+# ==========================================
+networks:
+  library-network:
+    driver: bridge
+    name: library-network
+
+volumes:
+  catalog_mydata:
+    name: library_catalog_data
+  auth_pgdata:
+    name: library_auth_data
+  circulation_mydata:
+    name: library_circulation_data
